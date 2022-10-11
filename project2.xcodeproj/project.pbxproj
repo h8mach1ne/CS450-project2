@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		BD8CC69A28F39C0300BC10DB /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BD8CC69928F39C0300BC10DB /* main.cpp */; };
+		BD8CC6A228F39C0C00BC10DB /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD8CC6A128F39C0C00BC10DB /* OpenGL.framework */; };
+		BD8CC6A428F39C1200BC10DB /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD8CC6A328F39C1200BC10DB /* GLUT.framework */; };
+		BD8CC6B428F39EE000BC10DB /* cessna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BD8CC6B228F39EE000BC10DB /* cessna.cpp */; };
+		BDCD7D0E28F5ECF20094CC3B /* heli.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BDCD7D0D28F5ECF20094CC3B /* heli.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +29,10 @@
 /* Begin PBXFileReference section */
 		BD8CC69628F39C0300BC10DB /* project2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = project2; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD8CC69928F39C0300BC10DB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		BD8CC6A128F39C0C00BC10DB /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		BD8CC6A328F39C1200BC10DB /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		BD8CC6B228F39EE000BC10DB /* cessna.cpp */ = {isa = PBXFileReference; explicitFileType = compiled; path = cessna.cpp; sourceTree = "<group>"; };
+		BDCD7D0D28F5ECF20094CC3B /* heli.cpp */ = {isa = PBXFileReference; explicitFileType = compiled; path = heli.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +40,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD8CC6A428F39C1200BC10DB /* GLUT.framework in Frameworks */,
+				BD8CC6A228F39C0C00BC10DB /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +53,7 @@
 			children = (
 				BD8CC69828F39C0300BC10DB /* project2 */,
 				BD8CC69728F39C0300BC10DB /* Products */,
+				BD8CC6A028F39C0C00BC10DB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,8 +69,19 @@
 			isa = PBXGroup;
 			children = (
 				BD8CC69928F39C0300BC10DB /* main.cpp */,
+				BD8CC6B228F39EE000BC10DB /* cessna.cpp */,
+				BDCD7D0D28F5ECF20094CC3B /* heli.cpp */,
 			);
 			path = project2;
+			sourceTree = "<group>";
+		};
+		BD8CC6A028F39C0C00BC10DB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BD8CC6A328F39C1200BC10DB /* GLUT.framework */,
+				BD8CC6A128F39C0C00BC10DB /* OpenGL.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,7 +141,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD8CC6B428F39EE000BC10DB /* cessna.cpp in Sources */,
 				BD8CC69A28F39C0300BC10DB /* main.cpp in Sources */,
+				BDCD7D0E28F5ECF20094CC3B /* heli.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,16 +262,22 @@
 		BD8CC69E28F39C0300BC10DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Debug;
 		};
 		BD8CC69F28F39C0300BC10DB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 			};
 			name = Release;
 		};
