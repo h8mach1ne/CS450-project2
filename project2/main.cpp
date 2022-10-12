@@ -114,48 +114,6 @@ const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
 const GLfloat AXES_WIDTH   = { 3. };
 
 
-
-
-
-// the color numbers:
-// this order must match the radio button order
-enum Colors {
-    RED,
-    YELLOW,
-    GREEN,
-    CYAN,
-    BLUE,
-    MAGENTA,
-    WHITE,
-    BLACK
-};
-
-char const* ColorNames[] = {
-    "Red",
-    "Yellow",
-    "Green",
-    "Cyan",
-    "Blue",
-    "Magenta",
-    "White",
-    "Black"
-};
-
-
-// the color definitions:
-// this order must match the menu order
-const GLfloat Colors[][3] = {
-    { 1., 0., 0. },        // red
-    { 1., 1., 0. },        // yellow
-    { 0., 1., 0. },        // green
-    { 0., 1., 1. },        // cyan
-    { 0., 0., 1. },        // blue
-    { 1., 0., 1. },        // magenta
-    { 1., 1., 1. },        // white
-    { 0., 0., 0. },        // black
-};
-
-
 // fog parameters:
 const GLfloat FOGCOLOR[4] = { .0, .0, .0, 1. };
 const GLenum  FOGMODE     = { GL_LINEAR };
@@ -471,14 +429,6 @@ void DoAxesMenu(int id) {
 }
 
 
-void DoColorMenu(int id) {
-    WhichColor = id - RED;
-    
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
-
-
 void DoDebugMenu(int id) {
     DebugOn = id;
     
@@ -578,12 +528,6 @@ float ElapsedSeconds() {
 void InitMenus() {
     glutSetWindow(MainWindow);
     
-    int numColors = sizeof(Colors) / (3 * sizeof(int));
-    int colormenu = glutCreateMenu(DoColorMenu);
-    for (int i = 0; i < numColors; i++) {
-        glutAddMenuEntry(ColorNames[i], i);
-    }
-    
     int axesmenu = glutCreateMenu(DoAxesMenu);
     glutAddMenuEntry("Off",  0);
     glutAddMenuEntry("On",   1);
@@ -606,7 +550,6 @@ void InitMenus() {
     
     glutCreateMenu(DoMainMenu);
     glutAddSubMenu(  "Axes",          axesmenu);
-    glutAddSubMenu(  "Colors",        colormenu);
     glutAddSubMenu(  "Depth Cue",     depthcuemenu);
     glutAddSubMenu(  "Projection",    projmenu);
     glutAddSubMenu(  "View",          perspmenu);
@@ -923,7 +866,6 @@ void Reset() {
     DebugOn = 0;
     DepthCueOn = 0;
     Scale  = 1.0;
-    WhichColor = WHITE;
     WhichProjection = PERSP;
     Xrot = Yrot = 0.;
     Frozen = 0;
