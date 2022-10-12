@@ -170,63 +170,61 @@ void Animate() {
 
 // draw the complete scene:
 
-void Display() {
-    if (DebugOn)
-        fprintf(stderr, "Display\n");
-    
-    
-    // set which window we want to do the graphics into:
-    glutSetWindow(MainWindow);
-    
-    
-    // erase the background:
+void makeShadingFlat() {
+    glShadeModel(GL_SMOOTH);
+}
+
+void eraseBackground() {
     glDrawBuffer(GL_BACK);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-    
-    
-    // specify shading to be flat:
-    glShadeModel(GL_SMOOTH);
-    
-    
-    // set the viewport to a square centered in the window:
+}
+
+void centerViewport() {
     GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
     GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
     GLsizei v = vx < vy ? vx : vy;            // minimum dimension
     GLint xl = (vx - v) / 2;
     GLint yb = (vy - v) / 2;
     glViewport(xl, yb,  v, v);
+}
+
+void Display() {
+    if (DebugOn) {
+        fprintf(stderr, "Display\n");
+    }
+        
+    // set which window we want to do the graphics into:
+    glutSetWindow(MainWindow);
     
-    
-    // set the viewing volume:
-    //Z clipping  values are actually given as DISTANCES IN FRONT OF THE EYE
+    eraseBackground();
+    makeShadingFlat();
+    centerViewport();
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90., 1.,    0.1, 1000.);
+    gluPerspective(90, 1, 0.1, 1000);
         
     // place the objects into the scene:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
-    
-    // set the eye position, look-at position, and up-vector:
+    // eye (my eyes?), center (i am looking at this?), up (?)
     if (WhichViewPerspective == INSIDE) {
-        gluLookAt(0., 1.8, -5,     0., 0., 10.,     0., 0., 10.);
+        gluLookAt(0, 1.8, -5,     0, 0, 10,     0, 0, 10);
     } else {
-        gluLookAt(11., 7., 9.,     0., 0., 1.6,     0., 1., 0.);
-        
-        
+        gluLookAt(11, 7, 9,     0, 0, 1.6,     0, 1, 0);
+                
         // rotate the scene:
-        glRotatef((GLfloat)Yrot, 0., 1., 0.);
-        glRotatef((GLfloat)Xrot, 1., 0., 0.);
-        
+        glRotatef((GLfloat)Yrot, 0, 1, 0);
+        glRotatef((GLfloat)Xrot, 1., 0, 0);
         
         // uniformly scale the scene:
-        if (Scale < SCALE_FACTOR_MINIMUM)
+        if (Scale < SCALE_FACTOR_MINIMUM) {
             Scale = SCALE_FACTOR_MINIMUM;
-        glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
+        }
         
+        glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
     }
     
     // possibly draw the axes:
@@ -274,7 +272,6 @@ void Display() {
     glPopMatrix();
     
     FunkyTargetThingy();
-    
  
     glDisable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
@@ -430,28 +427,22 @@ void InitGraphics() {
     
 }
 
-// initialize the display lists that will not change:
-// (a display list is a way to store opengl commands in
-//  memory so that they can be played back efficiently at a later time
-//  with a call to glCallList()
-void InitLists() {
-//    float dx = BOXSIZE / 10.f;
-//    float dy = BOXSIZE / 10.f;
-//    float dz = BOXSIZE / 10.f;
-    glutSetWindow(MainWindow);
-    
-    createCessnaWireframe();
-    createCessnaPropeller();
-
-
-
-    // create the axes
+void initAxes() {
     AxesList = glGenLists(1);
     glNewList(AxesList, GL_COMPILE);
     glLineWidth(AXES_WIDTH);
     Axes(1.5);
     glLineWidth(1.);
     glEndList();
+}
+
+void InitLists() {
+    glutSetWindow(MainWindow);
+    
+    createCessnaWireframe();
+    createCessnaPropeller();
+
+    initAxes();
 }
 
 void setColor(float r, float g, float b) {
@@ -537,7 +528,7 @@ void createCessnaPropeller() {
     // propeller parameters:
 
     #define PROPELLER_RADIUS     1.0
-    #define PROPELLER_WIDTH         0.4
+    #define PROPELLER_WIDTH      0.4
     
     CessnaPropellerList = glGenLists(1);
     glNewList(CessnaPropellerList, GL_COMPILE);
@@ -694,11 +685,17 @@ void Reset() {
 }
 
 
+static int x_order[] = {
+    1, 2, -3, 4
+};
 
+static int z_order[] = {
+    1, 2, 3, 4, -5, 6
+};
 
-
-///HANDY UTILITIES:
-
+static int y_order[] = {
+    1, 2, 3, -2, 4
+};
 
 static float xx[] = {
     0.f, 1.f, 0.f, 1.f
@@ -706,10 +703,6 @@ static float xx[] = {
 
 static float xy[] = {
     -.5f, .5f, .5f, -.5f
-};
-
-static int xorder[] = {
-    1, 2, -3, 4
 };
 
 static float yx[] = {
@@ -720,20 +713,12 @@ static float yy[] = {
     0.f, .6f, 1.f, 1.f
 };
 
-static int yorder[] = {
-    1, 2, 3, -2, 4
-};
-
 static float zx[] = {
     1.f, 0.f, 1.f, 0.f, .25f, .75f
 };
 
 static float zy[] = {
     .5f, .5f, -.5f, -.5f, 0.f, 0.f
-};
-
-static int zorder[] = {
-    1, 2, 3, 4, -5, 6
 };
 
 // fraction of the length to use as height of the characters:
@@ -764,7 +749,7 @@ void Axes(float length) {
     // Draw stroke X
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i < 4; i++) {
-        int j = xorder[i];
+        int j = x_order[i];
         if (j < 0) {
             glEnd();
             glBegin(GL_LINE_STRIP);
@@ -778,7 +763,7 @@ void Axes(float length) {
     // Draw stroke Y
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i < 5; i++) {
-        int j = yorder[i];
+        int j = y_order[i];
         if (j < 0) {
             glEnd();
             glBegin(GL_LINE_STRIP);
@@ -792,7 +777,7 @@ void Axes(float length) {
     // Draw stroke Z
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i < 6; i++) {
-        int j = zorder[i];
+        int j = z_order[i];
         if (j < 0) {
             glEnd();
             glBegin(GL_LINE_STRIP);
