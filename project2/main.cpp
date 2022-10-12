@@ -131,6 +131,7 @@ int        DepthCueOn;                // != 0 means to use intensity depth cuein
 GLuint    BoxList;                // object display list
 GLuint  CessnaList;               // helicopter display list
 GLuint  CessnaWireList;           // wireframe helicopter display list
+GLuint  CessnaPropellerList;
 GLuint  BladeList;              // helicopter blade display list
 GLuint  ObjList;                // new object display list
 int        MainWindow;                // window id for main graphics window
@@ -157,6 +158,7 @@ void    Animate();
 void    Display();
 void    drawFunkyTargetThingy();
 void    createCessnaWireframe();
+void    createCessnaPropeller();
 void    DoAxesMenu(int);
 void    DoColorMenu(int);
 void    DoDepthMenu(int);
@@ -332,35 +334,32 @@ void Display() {
     
     // since we are using glScalef(), be sure normals get unitized:
     glEnable(GL_NORMALIZE);
-    
-    
-    // draw the helicopter
-    GLfloat const white[3] = {1,1,1};
-    glColor3fv(white);
 
     glCallList(CessnaList);
     glCallList(CessnaWireList);
+//    glCallList(CessnaPropellerList);
     
     glPushMatrix();
     
     // draw blade 1
     
-    glTranslatef(0., 2.9, -2);
+    glTranslatef(0.,0.,7.5);
     glScalef(5., 5., 5.);
-    glRotatef(360.*TimeCycle, 0., 1., 0.);
-    glRotatef(90., 1., 0., 0.);
+    //glRotatef(360.*TimeCycle, 0., 1., 0.);
+    glRotatef(360.*TimeCycle, 0., 0., 1.);
+    printf("Time cycle: %f\n", TimeCycle);
     glColor3f(1., 1., 1.);
-    glCallList(BladeList);
+    glCallList(CessnaPropellerList);
     
     glPopMatrix();
     glPushMatrix();
     
     // draw blade 2
-    glTranslatef(.5, 2.5, 9.);
-    glScalef(1.5, 1.5, 1.5);
-    glRotatef(3*360.*TimeCycle, 1., 0., 0.);
-    glRotatef(90., 0., 1., 0.);
-    glCallList(BladeList);
+//    glTranslatef(.5, 2.5, 9.);
+//    glScalef(1.5, 1.5, 1.5);
+//    glRotatef(3*360.*TimeCycle, 1., 0., 0.);
+//    glRotatef(90., 0., 1., 0.);
+//    glCallList(BladeList);
     
     glPopMatrix();
     
@@ -650,6 +649,7 @@ void InitLists() {
     glutSetWindow(MainWindow);
     
     createCessnaWireframe();
+    createCessnaPropeller();
 
 //
 //    // create helicopter
@@ -723,6 +723,10 @@ void InitLists() {
     glEndList();
 }
 
+void setColor(float r, float g, float b) {
+    glColor3f(r, g, b);
+}
+
 void createCessnaWireframe() {
     CessnaWireList = glGenLists(1);
     glNewList(CessnaWireList, GL_COMPILE);
@@ -737,7 +741,10 @@ void createCessnaWireframe() {
     glRotatef(  97.,   0., 1., 0. );
     glRotatef( -15.,   0., 0., 1. );
     glBegin( GL_LINES );
-    
+
+    // red
+    setColor(1, 0, 0);
+
     for (i=0, ep = CESSNAedges; i < CESSNAnedges; i++, ep++) {
         p0 = &CESSNApoints[ ep->p0 ];
         p1 = &CESSNApoints[ ep->p1 ];
@@ -747,6 +754,36 @@ void createCessnaWireframe() {
     
     glEnd();
     glPopMatrix();
+    
+    glEndList();
+}
+
+void createCessnaPropeller() {
+    // propeller parameters:
+
+    #define PROPELLER_RADIUS     1.0
+    #define PROPELLER_WIDTH         0.4
+    
+    CessnaPropellerList = glGenLists(1);
+    glNewList(CessnaPropellerList, GL_COMPILE);
+
+            // draw the cessna propeller with radius PROPELLER_RADIUS and
+            //    width PROPELLER_WIDTH centered at (0.,0.,0.) in the XY plane
+
+            glBegin( GL_TRIANGLES );
+                setColor(1, 1, 1);
+                glVertex2f(  PROPELLER_RADIUS,  PROPELLER_WIDTH/2. );
+                glVertex2f(  0., 0. );
+                glVertex2f(  PROPELLER_RADIUS, -PROPELLER_WIDTH/2. );
+
+                glVertex2f( -PROPELLER_RADIUS, -PROPELLER_WIDTH/2. );
+                glVertex2f(  0., 0. );
+                glVertex2f( -PROPELLER_RADIUS,  PROPELLER_WIDTH/2. );
+    
+    
+                glTranslatef(50,50,50);
+            glEnd( );
+
     
     glEndList();
 }
