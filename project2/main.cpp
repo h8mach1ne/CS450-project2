@@ -65,13 +65,6 @@ const int MIDDLE = { 2 };
 const int RIGHT  = { 1 };
 
 
-// which projection:
-enum Projections {
-    ORTHO,
-    PERSP
-};
-
-
 // which view perspective
 enum ViewPerspective {
     OUTSIDE,
@@ -100,7 +93,6 @@ int        ActiveButton;            // current button that is down
 GLuint    AxesList;                // list to hold the axes
 int        AxesOn;                    // != 0 means to draw the axes
 int        DebugOn;                // != 0 means to print debugging info
-int        DepthCueOn;                // != 0 means to use intensity depth cueing
 GLuint    BoxList;                // object display list
 GLuint  CessnaList;               // helicopter display list
 GLuint  CessnaWireList;           // wireframe helicopter display list
@@ -110,7 +102,6 @@ GLuint  ObjList;                // new object display list
 int        MainWindow;                // window id for main graphics window
 float    Scale;                    // scaling factor
 int        WhichColor;                // index into Colors[ ]
-int        WhichProjection;        // ORTHO or PERSP
 int     WhichViewPerspective;   // OUTSIDE or INSIDE
 int        Xmouse, Ymouse;            // mouse values
 float    Xrot, Yrot;                // rotation angles in degrees
@@ -131,10 +122,8 @@ void    createCessnaWireframe();
 void    createCessnaPropeller();
 void    DoAxesMenu(int);
 void    DoColorMenu(int);
-void    DoDepthMenu(int);
 void    DoDebugMenu(int);
 void    DoMainMenu(int);
-void    DoProjectMenu(int);
 void    DoRasterString(float, float, float, char const *);
 void    DoStrokeString(float, float, float, float, char const *);
 float    ElapsedSeconds();
@@ -219,12 +208,8 @@ void Display() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    if (WhichProjection == ORTHO)
-        glOrtho(-3., 3.,     -3., 3.,     0.1, 1000.);
-    else
-        gluPerspective(90., 1.,    0.1, 1000.);
-    
-    
+    gluPerspective(90., 1.,    0.1, 1000.);
+        
     // place the objects into the scene:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -323,14 +308,6 @@ void DoDebugMenu(int id) {
 }
 
 
-void DoDepthMenu(int id) {
-    DepthCueOn = id;
-    
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
-
-
 // main menu callback:
 void DoMainMenu(int id) {
     switch (id) {
@@ -353,13 +330,6 @@ void DoMainMenu(int id) {
     glutPostRedisplay();
 }
 
-
-void DoProjectMenu(int id) {
-    WhichProjection = id;
-    
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
 
 void DoPerspMenu(int id) {
     WhichViewPerspective = id;
@@ -390,17 +360,9 @@ void InitMenus() {
     glutAddMenuEntry("Off",  0);
     glutAddMenuEntry("On",   1);
     
-    int depthcuemenu = glutCreateMenu(DoDepthMenu);
-    glutAddMenuEntry("Off",  0);
-    glutAddMenuEntry("On",   1);
-    
     int debugmenu = glutCreateMenu(DoDebugMenu);
     glutAddMenuEntry("Off",  0);
     glutAddMenuEntry("On",   1);
-    
-    int projmenu = glutCreateMenu(DoProjectMenu);
-    glutAddMenuEntry("Orthographic",  ORTHO);
-    glutAddMenuEntry("Perspective",   PERSP);
     
     int perspmenu = glutCreateMenu(DoPerspMenu);
     glutAddMenuEntry("Outside", OUTSIDE);
@@ -408,8 +370,6 @@ void InitMenus() {
     
     glutCreateMenu(DoMainMenu);
     glutAddSubMenu(  "Axes",          axesmenu);
-    glutAddSubMenu(  "Depth Cue",     depthcuemenu);
-    glutAddSubMenu(  "Projection",    projmenu);
     glutAddSubMenu(  "View",          perspmenu);
     glutAddMenuEntry("Reset",         RESET);
     glutAddSubMenu(  "Debug",         debugmenu);
@@ -637,14 +597,6 @@ void Keyboard(unsigned char c, int x, int y) {
         fprintf( stderr, "Keyboard: '%c' (0x%0x)\n", c, c );
     
     switch (c) {
-        case 'o': case 'O':
-            WhichProjection = ORTHO;
-            break;
-            
-        case 'p': case 'P':
-            WhichProjection = PERSP;
-            break;
-            
         case 'q': case 'Q': case ESCAPE:
             DoMainMenu(QUIT);    // will not return here
             break;                // happy compiler
@@ -741,9 +693,7 @@ void Reset() {
     ActiveButton = 0;
     AxesOn = 0;
     DebugOn = 0;
-    DepthCueOn = 0;
     Scale  = 1.0;
-    WhichProjection = PERSP;
     Xrot = Yrot = 0.;
     Frozen = 0;
 }
