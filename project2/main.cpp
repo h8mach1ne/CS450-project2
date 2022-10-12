@@ -1,15 +1,4 @@
 //    Project 2
-//
-//    The left mouse button does rotation
-//    The middle mouse button does scaling
-//    The user interface allows:
-//        1. The axes to be turned on and off
-//        2. Debugging to be turned on and off
-//        3. Depth cueing to be turned on and off
-//        4. The projection to be changed
-//        5. The transformations to be reset
-//        6. The program to quit
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -308,7 +297,7 @@ void Display() {
     
     // eye (my eyes?), center (i am looking at this?), up (?)
     if (WhichViewPerspective == INSIDE) {
-        gluLookAt(0, 1.8, -5,     0, 0, 10,     0, 0, 10);
+        gluLookAt(0, 1.8, 3,     0, 0, 10,     0, 0, 2);
     } else {
         gluLookAt(11, 7, 9,     0, 0, 1.6,     0, 1, 0);
                 
