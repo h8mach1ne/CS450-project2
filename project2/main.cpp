@@ -197,6 +197,8 @@ bool    Frozen;                 // sets whether the scene is frozen
 
 void    Animate();
 void    Display();
+void    drawFunkyTargetThingy();
+void    createCessnaWireframe();
 void    DoAxesMenu(int);
 void    DoColorMenu(int);
 void    DoDepthMenu(int);
@@ -364,7 +366,8 @@ void Display() {
     
     // possibly draw the axes:
     if (AxesOn) {
-        glColor3fv(&Colors[WhichColor][0]);
+        GLfloat const red[3] = {1,0,0};
+        glColor3fv(red);
         glCallList(AxesList);
     }
     
@@ -374,6 +377,9 @@ void Display() {
     
     
     // draw the helicopter
+    GLfloat const white[3] = {1,1,1};
+    glColor3fv(white);
+
     glCallList(CessnaList);
     glCallList(CessnaWireList);
     
@@ -400,22 +406,7 @@ void Display() {
     
     glPopMatrix();
     
-    // draw project 1 object:
-    glTranslatef(0, 2, -10.);
-    glRotatef(47., 9, 8, -5);
-    glBegin(GL_TRIANGLE_STRIP);
-    
-    for (int y = 0; y < 200; y++) {
-        float deg = y / 10.;
-        if (y < 40) glColor3f(0, y/80., 128/255.);
-        else if (y < 80) glColor3f(0, 128/255., (80-y)/80.);
-        else if (y < 120) glColor3f((y-80.)/80., 128/255., 0);
-        else glColor3f(128/255., (160-y)/80., 0);
-        glVertex3f(cosf(deg)/2., y/200.*sinf(Time), sinf(deg)/2.);
-        glVertex3f(cosf(deg), y/80.*sinf(Time), sinf(deg));
-    }
-    
-    glEnd();
+    //drawFunkyTargetThingy();
     
     
     // draw some gratuitous text that just rotates on top of the scene:
@@ -450,6 +441,25 @@ void Display() {
     // be sure the graphics buffer has been sent:
     // note: be sure to use glFlush() here, not glFinish() !
     glFlush();
+}
+
+void drawFunkyTargetThingy() {
+    glTranslatef(0, 2, -10.);
+    glRotatef(47., 9, 8, -5);
+    glBegin(GL_TRIANGLE_STRIP);
+    
+    for (int y = 0; y < 200; y++) {
+        float deg = y / 10.;
+        if (y < 40) glColor3f(0, y/80., 128/255.);
+        else if (y < 80) glColor3f(0, 128/255., (80-y)/80.);
+        else if (y < 120) glColor3f((y-80.)/80., 128/255., 0);
+        else glColor3f(128/255., (160-y)/80., 0);
+        glVertex3f(cosf(deg)/2., y/200.*sinf(Time), sinf(deg)/2.);
+        glVertex3f(cosf(deg), y/80.*sinf(Time), sinf(deg));
+    }
+    
+    glEnd();
+
 }
 
 
@@ -686,7 +696,6 @@ void InitGraphics() {
     
 }
 
-
 // initialize the display lists that will not change:
 // (a display list is a way to store opengl commands in
 //  memory so that they can be played back efficiently at a later time
@@ -697,60 +706,81 @@ void InitLists() {
     float dz = BOXSIZE / 2.f;
     glutSetWindow(MainWindow);
     
-    // create the object
-    BoxList = glGenLists(1);
-    glNewList(BoxList, GL_COMPILE);
-    
-    glBegin(GL_QUADS);
-    
-    glColor3f(0., 0., 1.);
-    glNormal3f(0., 0.,  1.);
-    glVertex3f(-dx, -dy,  dz);
-    glVertex3f( dx, -dy,  dz);
-    glVertex3f( dx,  dy,  dz);
-    glVertex3f(-dx,  dy,  dz);
-    
-    glNormal3f(0., 0., -1.);
-    glTexCoord2f(0., 0.);
-    glVertex3f(-dx, -dy, -dz);
-    glTexCoord2f(0., 1.);
-    glVertex3f(-dx,  dy, -dz);
-    glTexCoord2f(1., 1.);
-    glVertex3f( dx,  dy, -dz);
-    glTexCoord2f(1., 0.);
-    glVertex3f( dx, -dy, -dz);
-    
-    glColor3f(1., 0., 0.);
-    glNormal3f( 1., 0., 0.);
-    glVertex3f( dx, -dy,  dz);
-    glVertex3f( dx, -dy, -dz);
-    glVertex3f( dx,  dy, -dz);
-    glVertex3f( dx,  dy,  dz);
-    
-    glNormal3f(-1., 0., 0.);
-    glVertex3f(-dx, -dy,  dz);
-    glVertex3f(-dx,  dy,  dz);
-    glVertex3f(-dx,  dy, -dz);
-    glVertex3f(-dx, -dy, -dz);
-    
-    glColor3f(0., 1., 0.);
-    glNormal3f(0.,  1., 0.);
-    glVertex3f(-dx,  dy,  dz);
-    glVertex3f( dx,  dy,  dz);
-    glVertex3f( dx,  dy, -dz);
-    glVertex3f(-dx,  dy, -dz);
-    
-    glNormal3f(0., -1., 0.);
-    glVertex3f(-dx, -dy,  dz);
-    glVertex3f(-dx, -dy, -dz);
-    glVertex3f( dx, -dy, -dz);
-    glVertex3f( dx, -dy,  dz);
-    
-    glEnd();
-    
+    createCessnaWireframe();
+
+//
+//    // create helicopter
+//    CessnaList = glGenLists(1);
+//    glNewList(CessnaList, GL_COMPILE);
+//
+//    struct tri *tp;
+//    float p01[3], p02[3], n[3];
+//
+//    glPushMatrix();
+//    glTranslatef(0., -1., 0.);
+//    glRotatef(97., 0., 1., 0.);
+//    glRotatef(-15., 0., 0., 1.);
+//    glBegin(GL_TRIANGLES);
+//
+//    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
+//        p0 = &CESSNApoints[ tp->p0 ];
+//        p1 = &CESSNApoints[ tp->p1 ];
+////        p2 = &CESSNApoints[ tp->p2 ];
+//
+//        /* fake "lighting" from above:            */
+//
+//        p01[0] = p1->x - p0->x;
+//        p01[1] = p1->y - p0->y;
+//        p01[2] = p1->z - p0->z;
+////        p02[0] = p2->x - p0->x;
+////        p02[1] = p2->y - p0->y;
+////        p02[2] = p2->z - p0->z;
+//        Cross( p01, p02, n );
+//        Unit( n, n );
+//        n[1] = fabs( n[1] );
+//        n[1] += .25;
+//        if( n[1] > 1. )
+//            n[1] = 1.;
+//        glColor3f( 0., n[1], 0. );
+//
+//        glVertex3f( p0->x, p0->y, p0->z );
+//        glVertex3f( p1->x, p1->y, p1->z );
+////        glVertex3f( p2->x, p2->y, p2->z );
+//    }
+//    glEnd( );
+//    glPopMatrix( );
+//
+//    glEndList();
+//
+//
+//    // create the helicopter blade with radius BLADE_RADIUS and
+//    //    width BLADE_WIDTH centered at (0.,0.,0.) in the XY plane
+//    BladeList = glGenLists(1);
+//    glNewList(BladeList, GL_COMPILE);
+//
+//    glBegin( GL_TRIANGLES );
+//    glVertex2f(  BLADE_RADIUS,  BLADE_WIDTH/2. );
+//    glVertex2f(  0., 0. );
+//    glVertex2f(  BLADE_RADIUS, -BLADE_WIDTH/2. );
+//
+//    glVertex2f( -BLADE_RADIUS, -BLADE_WIDTH/2. );
+//    glVertex2f(  0., 0. );
+//    glVertex2f( -BLADE_RADIUS,  BLADE_WIDTH/2. );
+//    glEnd();
+//
+//    glEndList();
+//
+//
+    // create the axes
+    AxesList = glGenLists(1);
+    glNewList(AxesList, GL_COMPILE);
+    glLineWidth(AXES_WIDTH);
+    Axes(1.5);
+    glLineWidth(1.);
     glEndList();
-    
-    // create wireframe helicopter
+}
+
+void createCessnaWireframe() {
     CessnaWireList = glGenLists(1);
     glNewList(CessnaWireList, GL_COMPILE);
     
@@ -758,92 +788,23 @@ void InitLists() {
     struct edge *ep;
     struct point *p0, *p1;
 
-    glPushMatrix( );
+    glPushMatrix();
     glRotatef(-7., 0., 1., 0.);
     glTranslatef( 0., -1., 0. );
     glRotatef(  97.,   0., 1., 0. );
     glRotatef( -15.,   0., 0., 1. );
     glBegin( GL_LINES );
-        for( i=0, ep = CESSNAedges; i < CESSNAnedges; i++, ep++ )
-        {
-            p0 = &CESSNApoints[ ep->p0 ];
-            p1 = &CESSNApoints[ ep->p1 ];
-            glVertex3f( p0->x, p0->y, p0->z );
-            glVertex3f( p1->x, p1->y, p1->z );
-        }
-    glEnd( );
-    glPopMatrix( );
     
-    glEndList();
-    
-    // create helicopter
-    CessnaList = glGenLists(1);
-    glNewList(CessnaList, GL_COMPILE);
-    
-    struct tri *tp;
-    float p01[3], p02[3], n[3];
-    
-    glPushMatrix();
-    glTranslatef(0., -1., 0.);
-    glRotatef(97., 0., 1., 0.);
-    glRotatef(-15., 0., 0., 1.);
-    glBegin(GL_TRIANGLES);
-    
-    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
-        p0 = &CESSNApoints[ tp->p0 ];
-        p1 = &CESSNApoints[ tp->p1 ];
-//        p2 = &CESSNApoints[ tp->p2 ];
-        
-        /* fake "lighting" from above:            */
-        
-        p01[0] = p1->x - p0->x;
-        p01[1] = p1->y - p0->y;
-        p01[2] = p1->z - p0->z;
-//        p02[0] = p2->x - p0->x;
-//        p02[1] = p2->y - p0->y;
-//        p02[2] = p2->z - p0->z;
-        Cross( p01, p02, n );
-        Unit( n, n );
-        n[1] = fabs( n[1] );
-        n[1] += .25;
-        if( n[1] > 1. )
-            n[1] = 1.;
-        glColor3f( 0., n[1], 0. );
-        
+    for (i=0, ep = CESSNAedges; i < CESSNAnedges; i++, ep++) {
+        p0 = &CESSNApoints[ ep->p0 ];
+        p1 = &CESSNApoints[ ep->p1 ];
         glVertex3f( p0->x, p0->y, p0->z );
         glVertex3f( p1->x, p1->y, p1->z );
-//        glVertex3f( p2->x, p2->y, p2->z );
     }
-    glEnd( );
-    glPopMatrix( );
     
-    glEndList();
-    
-    
-    // create the helicopter blade with radius BLADE_RADIUS and
-    //    width BLADE_WIDTH centered at (0.,0.,0.) in the XY plane
-    BladeList = glGenLists(1);
-    glNewList(BladeList, GL_COMPILE);
-    
-    glBegin( GL_TRIANGLES );
-    glVertex2f(  BLADE_RADIUS,  BLADE_WIDTH/2. );
-    glVertex2f(  0., 0. );
-    glVertex2f(  BLADE_RADIUS, -BLADE_WIDTH/2. );
-    
-    glVertex2f( -BLADE_RADIUS, -BLADE_WIDTH/2. );
-    glVertex2f(  0., 0. );
-    glVertex2f( -BLADE_RADIUS,  BLADE_WIDTH/2. );
     glEnd();
+    glPopMatrix();
     
-    glEndList();
-    
-    
-    // create the axes
-    AxesList = glGenLists(1);
-    glNewList(AxesList, GL_COMPILE);
-    glLineWidth(AXES_WIDTH);
-    Axes(1.5);
-    glLineWidth(1.);
     glEndList();
 }
 
