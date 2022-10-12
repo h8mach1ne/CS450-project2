@@ -341,25 +341,32 @@ void Display() {
     
     glPushMatrix();
     
-    // draw blade 1
+    // draw nose propeller
     
     glTranslatef(0.,0.,7.5);
     glScalef(5., 5., 5.);
-    //glRotatef(360.*TimeCycle, 0., 1., 0.);
     glRotatef(360.*TimeCycle, 0., 0., 1.);
-    printf("Time cycle: %f\n", TimeCycle);
     glColor3f(1., 1., 1.);
     glCallList(CessnaPropellerList);
     
     glPopMatrix();
     glPushMatrix();
     
-    // draw blade 2
-//    glTranslatef(.5, 2.5, 9.);
-//    glScalef(1.5, 1.5, 1.5);
-//    glRotatef(3*360.*TimeCycle, 1., 0., 0.);
-//    glRotatef(90., 0., 1., 0.);
-//    glCallList(BladeList);
+    // draw left propeller
+    glTranslatef(-10., 3., 0);
+    glScalef(3, 3, 3);
+    glRotatef(-2*360.*TimeCycle, 0., 1., 0.);
+    glRotatef(90., 0., 0., 0.);
+    glCallList(CessnaPropellerList);
+    
+    glPopMatrix();
+    glPushMatrix();
+    // draw right propeller
+    glTranslatef(10., 3., 0.);
+    glScalef(3, 3, 3);
+    glRotatef(2*360.*TimeCycle, 0., 1., 0.);
+    glRotatef(-90., 0., 0., 0.);
+    glCallList(CessnaPropellerList);
     
     glPopMatrix();
     
