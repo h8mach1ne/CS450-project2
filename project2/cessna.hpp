@@ -24,8 +24,9 @@ struct tri
         int p0, p1, p2;
 };
 
-
-
+int CESSNAnpoints = 2584;
+int CESSNAnedges = 7634;
+int CESSNAntris = 5084;
 
 
 struct point CESSNApoints[ ] = {
@@ -2614,8 +2615,6 @@ struct point CESSNApoints[ ] = {
     { -2.46f, 0.52f, -1.74f },
     { 4.39f, 1.04f, -0.35f },
 };
-
-
 
 
 

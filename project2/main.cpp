@@ -29,7 +29,7 @@
 
 #include "glut.h"
 
-#include "heli.cpp"
+#include "cessna.hpp"
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
@@ -114,6 +114,9 @@ const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
 const GLfloat AXES_WIDTH   = { 3. };
 
 
+
+
+
 // the color numbers:
 // this order must match the radio button order
 enum Colors {
@@ -168,8 +171,8 @@ int        AxesOn;                    // != 0 means to draw the axes
 int        DebugOn;                // != 0 means to print debugging info
 int        DepthCueOn;                // != 0 means to use intensity depth cueing
 GLuint    BoxList;                // object display list
-GLuint  HeliList;               // helicopter display list
-GLuint  HeliWireList;           // wireframe helicopter display list
+GLuint  CessnaList;               // helicopter display list
+GLuint  CessnaWireList;           // wireframe helicopter display list
 GLuint  BladeList;              // helicopter blade display list
 GLuint  ObjList;                // new object display list
 int        MainWindow;                // window id for main graphics window
@@ -371,8 +374,8 @@ void Display() {
     
     
     // draw the helicopter
-    glCallList(HeliList);
-    glCallList(HeliWireList);
+    glCallList(CessnaList);
+    glCallList(CessnaWireList);
     
     glPushMatrix();
     
@@ -748,32 +751,34 @@ void InitLists() {
     glEndList();
     
     // create wireframe helicopter
-    HeliWireList = glGenLists(1);
-    glNewList(HeliWireList, GL_COMPILE);
+    CessnaWireList = glGenLists(1);
+    glNewList(CessnaWireList, GL_COMPILE);
     
     int i;
     struct edge *ep;
-    struct point *p0, *p1, *p2;
-    
+    struct point *p0, *p1;
+
     glPushMatrix( );
+    glRotatef(-7., 0., 1., 0.);
     glTranslatef( 0., -1., 0. );
     glRotatef(  97.,   0., 1., 0. );
     glRotatef( -15.,   0., 0., 1. );
-    glBegin(GL_LINES);
-    for (i=0, ep = Heliedges; i < Helinedges; i++, ep++ ) {
-        p0 = &Helipoints[ ep->p0 ];
-        p1 = &Helipoints[ ep->p1 ];
-        glVertex3f( p0->x, p0->y, p0->z );
-        glVertex3f( p1->x, p1->y, p1->z );
-    }
+    glBegin( GL_LINES );
+        for( i=0, ep = CESSNAedges; i < CESSNAnedges; i++, ep++ )
+        {
+            p0 = &CESSNApoints[ ep->p0 ];
+            p1 = &CESSNApoints[ ep->p1 ];
+            glVertex3f( p0->x, p0->y, p0->z );
+            glVertex3f( p1->x, p1->y, p1->z );
+        }
     glEnd( );
     glPopMatrix( );
     
     glEndList();
     
     // create helicopter
-    HeliList = glGenLists(1);
-    glNewList(HeliList, GL_COMPILE);
+    CessnaList = glGenLists(1);
+    glNewList(CessnaList, GL_COMPILE);
     
     struct tri *tp;
     float p01[3], p02[3], n[3];
@@ -783,19 +788,20 @@ void InitLists() {
     glRotatef(97., 0., 1., 0.);
     glRotatef(-15., 0., 0., 1.);
     glBegin(GL_TRIANGLES);
-    for (i=0, tp = Helitris; i < Helintris; i++, tp++) {
-        p0 = &Helipoints[ tp->p0 ];
-        p1 = &Helipoints[ tp->p1 ];
-        p2 = &Helipoints[ tp->p2 ];
+    
+    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
+        p0 = &CESSNApoints[ tp->p0 ];
+        p1 = &CESSNApoints[ tp->p1 ];
+//        p2 = &CESSNApoints[ tp->p2 ];
         
         /* fake "lighting" from above:            */
         
         p01[0] = p1->x - p0->x;
         p01[1] = p1->y - p0->y;
         p01[2] = p1->z - p0->z;
-        p02[0] = p2->x - p0->x;
-        p02[1] = p2->y - p0->y;
-        p02[2] = p2->z - p0->z;
+//        p02[0] = p2->x - p0->x;
+//        p02[1] = p2->y - p0->y;
+//        p02[2] = p2->z - p0->z;
         Cross( p01, p02, n );
         Unit( n, n );
         n[1] = fabs( n[1] );
@@ -806,7 +812,7 @@ void InitLists() {
         
         glVertex3f( p0->x, p0->y, p0->z );
         glVertex3f( p1->x, p1->y, p1->z );
-        glVertex3f( p2->x, p2->y, p2->z );
+//        glVertex3f( p2->x, p2->y, p2->z );
     }
     glEnd( );
     glPopMatrix( );
