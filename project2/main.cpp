@@ -1,19 +1,15 @@
-//    Project 2: Animate a Helicopter
-//
-//    The objective is to draw a helicopter and animate the blades.
+//    Project 2
 //
 //    The left mouse button does rotation
 //    The middle mouse button does scaling
 //    The user interface allows:
 //        1. The axes to be turned on and off
-//        2. The color of the axes to be changed
-//        3. Debugging to be turned on and off
-//        4. Depth cueing to be turned on and off
-//        5. The projection to be changed
-//        6. The transformations to be reset
-//        7. The program to quit
-//
-//    Author:            Kyler Stole
+//        2. Debugging to be turned on and off
+//        3. Depth cueing to be turned on and off
+//        4. The projection to be changed
+//        5. The transformations to be reset
+//        6. The program to quit
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,14 +29,6 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-
-
-
-// NOTE: There are a lot of good reasons to use const variables instead
-// of #define's.  However, Visual C++ does not allow a const variable
-// to be used as an array size or as the case in a switch() statement.  So in
-// the following, all constants are const variables except those which need to
-// be array sizes or cases in switch() statements.  Those are #defines.
 
 
 // title of these windows:
@@ -158,6 +146,7 @@ void    Animate();
 void    Display();
 void    drawFunkyTargetThingy();
 void    createCessnaWireframe();
+void    CESSNAshade();
 void    createCessnaPropeller();
 void    DoAxesMenu(int);
 void    DoColorMenu(int);
@@ -238,6 +227,7 @@ void Animate() {
     ms %= MS_IN_THE_ANIMATION_CYCLE;
     TimeCycle = (float)ms / (float)MS_IN_THE_ANIMATION_CYCLE;    // [0., 1.]
     
+    
     // force a call to Display() next time it is convenient:
     glutSetWindow(MainWindow);
     glutPostRedisplay();
@@ -277,7 +267,7 @@ void Display() {
     // set the viewing volume:
     // remember that the Z clipping  values are actually
     // given as DISTANCES IN FRONT OF THE EYE
-    // USE gluOrtho2D() IF YOU ARE DOING 2D !
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     if (WhichProjection == ORTHO)
@@ -293,7 +283,7 @@ void Display() {
     
     // set the eye position, look-at position, and up-vector:
     if (WhichViewPerspective == INSIDE) {
-        gluLookAt(-0.4, 1.8, -4.9,     0., 0., -14.,     0., 1., 0.);
+        gluLookAt(-0.4, 1.8, -4.9,     0., 0., 10.,     0., 0., 10.);
     } else {
         gluLookAt(11., 7., 9.,     0., 0., 1.6,     0., 1., 0.);
         
@@ -370,7 +360,7 @@ void Display() {
     
     glPopMatrix();
     
-    //drawFunkyTargetThingy();
+    drawFunkyTargetThingy();
     
     
     // draw some gratuitous text that just rotates on top of the scene:
@@ -408,9 +398,10 @@ void Display() {
 }
 
 void drawFunkyTargetThingy() {
-    glTranslatef(0, 2, -10.);
-    glRotatef(47., 9, 8, -5);
-    glBegin(GL_TRIANGLE_STRIP);
+    glTranslatef(0, 1, 15.);
+    glRotatef(90., 90, 0, -5);
+    glScalef(2,2,2);
+    glBegin(GL_LINE_LOOP);
     
     for (int y = 0; y < 200; y++) {
         float deg = y / 10.;
@@ -650,77 +641,16 @@ void InitGraphics() {
 //  memory so that they can be played back efficiently at a later time
 //  with a call to glCallList()
 void InitLists() {
-    float dx = BOXSIZE / 2.f;
-    float dy = BOXSIZE / 2.f;
-    float dz = BOXSIZE / 2.f;
+//    float dx = BOXSIZE / 10.f;
+//    float dy = BOXSIZE / 10.f;
+//    float dz = BOXSIZE / 10.f;
     glutSetWindow(MainWindow);
     
     createCessnaWireframe();
     createCessnaPropeller();
 
-//
-//    // create helicopter
-//    CessnaList = glGenLists(1);
-//    glNewList(CessnaList, GL_COMPILE);
-//
-//    struct tri *tp;
-//    float p01[3], p02[3], n[3];
-//
-//    glPushMatrix();
-//    glTranslatef(0., -1., 0.);
-//    glRotatef(97., 0., 1., 0.);
-//    glRotatef(-15., 0., 0., 1.);
-//    glBegin(GL_TRIANGLES);
-//
-//    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
-//        p0 = &CESSNApoints[ tp->p0 ];
-//        p1 = &CESSNApoints[ tp->p1 ];
-////        p2 = &CESSNApoints[ tp->p2 ];
-//
-//        /* fake "lighting" from above:            */
-//
-//        p01[0] = p1->x - p0->x;
-//        p01[1] = p1->y - p0->y;
-//        p01[2] = p1->z - p0->z;
-////        p02[0] = p2->x - p0->x;
-////        p02[1] = p2->y - p0->y;
-////        p02[2] = p2->z - p0->z;
-//        Cross( p01, p02, n );
-//        Unit( n, n );
-//        n[1] = fabs( n[1] );
-//        n[1] += .25;
-//        if( n[1] > 1. )
-//            n[1] = 1.;
-//        glColor3f( 0., n[1], 0. );
-//
-//        glVertex3f( p0->x, p0->y, p0->z );
-//        glVertex3f( p1->x, p1->y, p1->z );
-////        glVertex3f( p2->x, p2->y, p2->z );
-//    }
-//    glEnd( );
-//    glPopMatrix( );
-//
-//    glEndList();
-//
-//
-//    // create the helicopter blade with radius BLADE_RADIUS and
-//    //    width BLADE_WIDTH centered at (0.,0.,0.) in the XY plane
-//    BladeList = glGenLists(1);
-//    glNewList(BladeList, GL_COMPILE);
-//
-//    glBegin( GL_TRIANGLES );
-//    glVertex2f(  BLADE_RADIUS,  BLADE_WIDTH/2. );
-//    glVertex2f(  0., 0. );
-//    glVertex2f(  BLADE_RADIUS, -BLADE_WIDTH/2. );
-//
-//    glVertex2f( -BLADE_RADIUS, -BLADE_WIDTH/2. );
-//    glVertex2f(  0., 0. );
-//    glVertex2f( -BLADE_RADIUS,  BLADE_WIDTH/2. );
-//    glEnd();
-//
-//    glEndList();
-//
-//
+
+
     // create the axes
     AxesList = glGenLists(1);
     glNewList(AxesList, GL_COMPILE);
@@ -761,6 +691,51 @@ void createCessnaWireframe() {
     
     glEnd();
     glPopMatrix();
+    
+    glEndList();
+}
+
+void CESSNAshade() {
+    
+    CessnaList = glGenLists(1);
+    glNewList(CessnaList, GL_COMPILE);
+    
+    int i;
+    struct tri *tp;
+    float p01[3], p02[3], n[3];
+//    struct edge *ep;
+    struct point *p0, *p1;
+    
+    glPushMatrix();
+    glRotatef(-7., 0., 1., 0.);
+    glTranslatef( 0., -1., 0. );
+    glRotatef(  97.,   0., 1., 0. );
+    glRotatef( -15.,   0., 0., 1. );
+    glBegin(GL_TRIANGLES);
+    
+    
+    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
+        p0 = &CESSNApoints[ tp->p0 ];
+        p1 = &CESSNApoints[ tp->p1 ];
+        
+        /* fake "lighting" from above:            */
+        
+        p01[0] = p1->x - p0->x;
+        p01[1] = p1->y - p0->y;
+        p01[2] = p1->z - p0->z;
+//        Unit( n, n );
+        n[1] = fabs( n[1] );
+        n[1] += .25;
+        if( n[1] > 1. )
+            n[1] = 1.;
+        glColor3f( 0., n[1], 0. );
+        
+        glVertex3f( p0->x, p0->y, p0->z );
+        glVertex3f( p1->x, p1->y, p1->z );
+        //        glVertex3f( p2->x, p2->y, p2->z );
+    }
+    glEnd( );
+    glPopMatrix( );
     
     glEndList();
 }
@@ -1057,11 +1032,6 @@ void Axes(float length) {
 }
 
 
-// function to convert HSV to RGB
-// 0.  <=  s, v, r, g, b  <=  1.
-// 0.  <= h  <=  360.
-// when this returns, call:
-//        glColor3fv(rgb);
 
 void HsvRgb(float hsv[3], float rgb[3]) {
     // guarantee valid input:
@@ -1133,31 +1103,19 @@ void HsvRgb(float hsv[3], float rgb[3]) {
     rgb[2] = b;
 }
 
-float Dot(float v1[3], float v2[3]) {
-    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
 
-void Cross(float v1[3], float v2[3], float vout[3]) {
-    float tmp[3];
-    tmp[0] = v1[1]*v2[2] - v2[1]*v1[2];
-    tmp[1] = v2[0]*v1[2] - v1[0]*v2[2];
-    tmp[2] = v1[0]*v2[1] - v2[0]*v1[1];
-    vout[0] = tmp[0];
-    vout[1] = tmp[1];
-    vout[2] = tmp[2];
-}
 
-float Unit(float vin[3], float vout[3]) {
-    float dist = vin[0]*vin[0] + vin[1]*vin[1] + vin[2]*vin[2];
-    if (dist > 0.0) {
-        dist = sqrt( dist );
-        vout[0] = vin[0] / dist;
-        vout[1] = vin[1] / dist;
-        vout[2] = vin[2] / dist;
-    } else {
-        vout[0] = vin[0];
-        vout[1] = vin[1];
-        vout[2] = vin[2];
-    }
-    return dist;
-}
+//float Unit(float vin[3], float vout[3]) {
+//    float dist = vin[0]*vin[0] + vin[1]*vin[1] + vin[2]*vin[2];
+//    if (dist > 0.0) {
+//        dist = sqrt( dist );
+//        vout[0] = vin[0] / dist;
+//        vout[1] = vin[1] / dist;
+//        vout[2] = vin[2] / dist;
+//    } else {
+//        vout[0] = vin[0];
+//        vout[1] = vin[1];
+//        vout[2] = vin[2];
+//    }
+//    return dist;
+//}
