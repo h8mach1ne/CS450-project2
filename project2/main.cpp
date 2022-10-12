@@ -154,6 +154,104 @@ int main(int argc, char *argv[]) {
 }
 
 
+// the keyboard callback:
+void Keyboard(unsigned char c, int x, int y) {
+    if (DebugOn)
+        fprintf( stderr, "Keyboard: '%c' (0x%0x)\n", c, c );
+    
+    switch (c) {
+        case 'q': case 'Q': case ESCAPE:
+            DoMainMenu(QUIT);    // will not return here
+            break;                // happy compiler
+            
+        case 'f': case 'F':
+            Frozen = !Frozen;
+            if (Frozen) glutIdleFunc(NULL);
+            else glutIdleFunc(Animate);
+            break;
+            
+        default:
+            fprintf(stderr, "Don't know what to do with keyboard: '%c' (0x%0x)\n", c, c);
+    }
+    
+    // force a call to Display():
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+
+// called when the mouse button transitions down or up:
+void MouseButton(int button, int state, int x, int y) {
+    int b = 0;            // LEFT, MIDDLE, or RIGHT
+    
+    if (DebugOn)
+        fprintf(stderr, "MouseButton: %d, %d, %d, %d\n", button, state, x, y);
+    
+    
+    // get the proper button bit mask:
+    switch (button) {
+        case GLUT_LEFT_BUTTON:
+            b = LEFT;
+            break;
+            
+        case GLUT_MIDDLE_BUTTON:
+            b = MIDDLE;
+            break;
+            
+        case GLUT_RIGHT_BUTTON:
+            b = RIGHT;
+            break;
+            
+        default:
+            b = 0;
+            fprintf(stderr, "Unknown mouse button: %d\n", button);
+    }
+    
+    
+    // button down sets the bit, up clears the bit:
+    if (state == GLUT_DOWN) {
+        Xmouse = x;
+        Ymouse = y;
+        ActiveButton |= b;
+    } else {
+        ActiveButton &= ~b;
+    }
+}
+
+
+// called when the mouse moves while a button is down:
+void MouseMotion(int x, int y) {
+    if (DebugOn)
+        fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
+    
+    
+    int dx = x - Xmouse;        // change in mouse coords
+    int dy = y - Ymouse;
+    
+    if (ActiveButton & LEFT) {
+        Xrot += (ANGLE_FACTOR*dy);
+        Yrot += (ANGLE_FACTOR*dx);
+    }
+    
+    
+    if (ActiveButton & MIDDLE) {
+        Scale += SCALE_FACTOR * (float) (dx - dy);
+        
+        // keep object from turning inside-out or disappearing:
+        
+        if (Scale < SCALE_FACTOR_MINIMUM)
+            Scale = SCALE_FACTOR_MINIMUM;
+    }
+    
+    Xmouse = x;            // new current position
+    Ymouse = y;
+    
+    glutSetWindow(MainWindow);
+    glutPostRedisplay();
+}
+
+
+
 void Animate() {
     int ms = glutGet(GLUT_ELAPSED_TIME);
     Time = (float)ms / (float)1000;
@@ -576,101 +674,6 @@ void FunkyTargetThingy() {
 
 
 
-// the keyboard callback:
-void Keyboard(unsigned char c, int x, int y) {
-    if (DebugOn)
-        fprintf( stderr, "Keyboard: '%c' (0x%0x)\n", c, c );
-    
-    switch (c) {
-        case 'q': case 'Q': case ESCAPE:
-            DoMainMenu(QUIT);    // will not return here
-            break;                // happy compiler
-            
-        case 'f': case 'F':
-            Frozen = !Frozen;
-            if (Frozen) glutIdleFunc(NULL);
-            else glutIdleFunc(Animate);
-            break;
-            
-        default:
-            fprintf(stderr, "Don't know what to do with keyboard: '%c' (0x%0x)\n", c, c);
-    }
-    
-    // force a call to Display():
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
-
-
-// called when the mouse button transitions down or up:
-void MouseButton(int button, int state, int x, int y) {
-    int b = 0;            // LEFT, MIDDLE, or RIGHT
-    
-    if (DebugOn)
-        fprintf(stderr, "MouseButton: %d, %d, %d, %d\n", button, state, x, y);
-    
-    
-    // get the proper button bit mask:
-    switch (button) {
-        case GLUT_LEFT_BUTTON:
-            b = LEFT;
-            break;
-            
-        case GLUT_MIDDLE_BUTTON:
-            b = MIDDLE;
-            break;
-            
-        case GLUT_RIGHT_BUTTON:
-            b = RIGHT;
-            break;
-            
-        default:
-            b = 0;
-            fprintf(stderr, "Unknown mouse button: %d\n", button);
-    }
-    
-    
-    // button down sets the bit, up clears the bit:
-    if (state == GLUT_DOWN) {
-        Xmouse = x;
-        Ymouse = y;
-        ActiveButton |= b;
-    } else {
-        ActiveButton &= ~b;
-    }
-}
-
-
-// called when the mouse moves while a button is down:
-void MouseMotion(int x, int y) {
-    if (DebugOn)
-        fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
-    
-    
-    int dx = x - Xmouse;        // change in mouse coords
-    int dy = y - Ymouse;
-    
-    if (ActiveButton & LEFT) {
-        Xrot += (ANGLE_FACTOR*dy);
-        Yrot += (ANGLE_FACTOR*dx);
-    }
-    
-    
-    if (ActiveButton & MIDDLE) {
-        Scale += SCALE_FACTOR * (float) (dx - dy);
-        
-        // keep object from turning inside-out or disappearing:
-        
-        if (Scale < SCALE_FACTOR_MINIMUM)
-            Scale = SCALE_FACTOR_MINIMUM;
-    }
-    
-    Xmouse = x;            // new current position
-    Ymouse = y;
-    
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
 
 
 // reset the transformations and the colors:
