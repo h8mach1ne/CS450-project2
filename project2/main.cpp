@@ -36,26 +36,17 @@ const char *WINDOWTITLE = { "Project2" };
 const char *GLUITITLE   = { "Kateryna Gnedash" };
 
 
-// what the glui package defines as true and false:
-//const int GLUITRUE  = { true  };
-//const int GLUIFALSE = { false };
-
-
 // the escape key:
 #define ESCAPE        0x1b
 
-
 // initial window size:
-const int INIT_WINDOW_SIZE = { 600 };
-
+const int INIT_WINDOW_SIZE = { 1800 };
 
 // size of the box:
-const float BOXSIZE = { 2.f };
-
+const float BOXSIZE = { 10.f };
 
 
 // multiplication factors for input interaction:
-//  (these are known from previous experience)
 const float ANGFACT = { 1. };
 const float SCLFACT = { 0.005f };
 
@@ -102,12 +93,6 @@ const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
 const GLfloat AXES_WIDTH   = { 3. };
 
 
-// fog parameters:
-const GLfloat FOGCOLOR[4] = { .0, .0, .0, 1. };
-const GLenum  FOGMODE     = { GL_LINEAR };
-const GLfloat FOGDENSITY  = { 0.30f };
-const GLfloat FOGSTART    = { 1.5 };
-const GLfloat FOGEND      = { 4. };
 
 
 // non-constant global variables:
@@ -134,19 +119,15 @@ float   TimeCycle;              // current time in animation cycle
 bool    Frozen;                 // sets whether the scene is frozen
 
 
-// blade parameters:
-
-#define BLADE_RADIUS     1.0
-#define BLADE_WIDTH         0.4
 
 
 // MARK: - Function prototypes
 
 void    Animate();
 void    Display();
-void    drawFunkyTargetThingy();
+void    FunkyTargetThingy();
 void    createCessnaWireframe();
-void    CESSNAshade();
+//void    CESSNAshade();
 void    createCessnaPropeller();
 void    DoAxesMenu(int);
 void    DoColorMenu(int);
@@ -164,8 +145,7 @@ void    Keyboard(unsigned char, int, int);
 void    MouseButton(int, int, int, int);
 void    MouseMotion(int, int);
 void    Reset();
-void    Resize(int, int);
-void    Visibility(int);
+
 
 void    Axes(float);
 void    HsvRgb(float[3], float [3]);
@@ -178,51 +158,21 @@ float   Unit(float vin[3], float vout[3]);
 
 // main program:
 int main(int argc, char *argv[]) {
-    // turn on the glut package:
-    // (do this before checking argc and argv since it might
-    // pull some command line arguments out)
+
     glutInit(&argc, argv);
-    
-    
-    // setup all the graphics stuff:
     InitGraphics();
-    
-    
-    // create the display structures that will not change:
     InitLists();
-    
-    
-    // init all the global variables used by Display():
-    // this will also post a redisplay
     Reset();
-    
-    
-    // setup all the user interface stuff:
     InitMenus();
-    
-    
-    // draw the scene once and wait for some interaction:
-    // (this will never return)
     glutSetWindow(MainWindow);
     glutMainLoop();
-    
-    
-    // this is here to make the compiler happy:
+
     return 0;
 }
 
 
-// this is where one would put code that is to be called
-// everytime the glut main loop has nothing to do
-//
-// this is typically where animation parameters are set
-//
-// do not call Display() from here -- let glutMainLoop() do it
-
 void Animate() {
-    // put animation stuff in here -- change some global variables
-    // for Display() to find:
-    int ms = glutGet(GLUT_ELAPSED_TIME);                    // milliseconds
+    int ms = glutGet(GLUT_ELAPSED_TIME);
     Time = (float)ms / (float)1000;
     ms %= MS_IN_THE_ANIMATION_CYCLE;
     TimeCycle = (float)ms / (float)MS_IN_THE_ANIMATION_CYCLE;    // [0., 1.]
@@ -252,7 +202,7 @@ void Display() {
     
     
     // specify shading to be flat:
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
     
     
     // set the viewport to a square centered in the window:
@@ -265,8 +215,7 @@ void Display() {
     
     
     // set the viewing volume:
-    // remember that the Z clipping  values are actually
-    // given as DISTANCES IN FRONT OF THE EYE
+    //Z clipping  values are actually given as DISTANCES IN FRONT OF THE EYE
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -283,7 +232,7 @@ void Display() {
     
     // set the eye position, look-at position, and up-vector:
     if (WhichViewPerspective == INSIDE) {
-        gluLookAt(-0.4, 1.8, -4.9,     0., 0., 10.,     0., 0., 10.);
+        gluLookAt(0., 1.8, -5,     0., 0., 10.,     0., 0., 10.);
     } else {
         gluLookAt(11., 7., 9.,     0., 0., 1.6,     0., 1., 0.);
         
@@ -300,20 +249,6 @@ void Display() {
         
     }
     
-    
-    // set the fog parameters:
-    if (DepthCueOn) {
-        glFogi(GL_FOG_MODE, FOGMODE);
-        glFogfv(GL_FOG_COLOR, FOGCOLOR);
-        glFogf(GL_FOG_DENSITY, FOGDENSITY);
-        glFogf(GL_FOG_START, FOGSTART);
-        glFogf(GL_FOG_END, FOGEND);
-        glEnable(GL_FOG);
-    } else {
-        glDisable(GL_FOG);
-    }
-    
-    
     // possibly draw the axes:
     if (AxesOn) {
         GLfloat const red[3] = {1,0,0};
@@ -321,13 +256,11 @@ void Display() {
         glCallList(AxesList);
     }
     
-    
-    // since we are using glScalef(), be sure normals get unitized:
     glEnable(GL_NORMALIZE);
 
     glCallList(CessnaList);
     glCallList(CessnaWireList);
-//    glCallList(CessnaPropellerList);
+
     
     glPushMatrix();
     
@@ -360,61 +293,17 @@ void Display() {
     
     glPopMatrix();
     
-    drawFunkyTargetThingy();
+    FunkyTargetThingy();
     
-    
-    // draw some gratuitous text that just rotates on top of the scene:
-    //    glDisable(GL_DEPTH_TEST);
-    //    glColor3f(0., 1., 1.);
-    //    DoRasterString(0., 1., 0., "Wha!!!");
-    
-    
-    // draw some gratuitous text that is fixed on the screen:
-    //
-    // the projection matrix is reset to define a scene whose
-    // world coordinate system goes from 0-100 in each axis
-    //
-    // this is called "percent units", and is just a convenience
-    //
-    // the modelview matrix is reset to identity as we don't
-    // want to transform these coordinates
+ 
     glDisable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0., 100., 0., 100.);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glColor3f(1., 1., 1.);
-    DoRasterString(5., 5., 0., "Project 2");
-    
-    
-    // swap the double-buffered framebuffers:
     glutSwapBuffers();
-    
-    
-    // be sure the graphics buffer has been sent:
-    // note: be sure to use glFlush() here, not glFinish() !
     glFlush();
-}
-
-void drawFunkyTargetThingy() {
-    glTranslatef(0, 1, 15.);
-    glRotatef(90., 90, 0, -5);
-    glScalef(2,2,2);
-    glBegin(GL_LINE_LOOP);
-    
-    for (int y = 0; y < 200; y++) {
-        float deg = y / 10.;
-        if (y < 40) glColor3f(0, y/80., 128/255.);
-        else if (y < 80) glColor3f(0, 128/255., (80-y)/80.);
-        else if (y < 120) glColor3f((y-80.)/80., 128/255., 0);
-        else glColor3f(128/255., (160-y)/80., 0);
-        glVertex3f(cosf(deg)/2., y/200.*sinf(Time), sinf(deg)/2.);
-        glVertex3f(cosf(deg), y/80.*sinf(Time), sinf(deg));
-    }
-    
-    glEnd();
-
 }
 
 
@@ -450,9 +339,6 @@ void DoMainMenu(int id) {
             break;
             
         case QUIT:
-            // gracefully close out the graphics:
-            // gracefully close the graphics window:
-            // gracefully exit the program:
             glutSetWindow(MainWindow);
             glFinish();
             glutDestroyWindow(MainWindow);
@@ -460,7 +346,7 @@ void DoMainMenu(int id) {
             break;
             
         default:
-            fprintf(stderr, "Don't know what to do with Main Menu ID %d\n", id);
+            fprintf(stderr, "Don't know what to do with Menu %d\n", id);
     }
     
     glutSetWindow(MainWindow);
@@ -482,31 +368,6 @@ void DoPerspMenu(int id) {
     glutPostRedisplay();
 }
 
-// use glut to display a string of characters using a raster font:
-
-void DoRasterString(float x, float y, float z, char const *s) {
-    glRasterPos3f( (GLfloat)x, (GLfloat)y, (GLfloat)z );
-    
-    char c;            // one character to print
-    for(; (c = *s) != '\0'; s++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-}
-
-
-// use glut to display a string of characters using a stroke font:
-
-void DoStrokeString(float x, float y, float z, float ht, char const *s) {
-    glPushMatrix();
-    glTranslatef( (GLfloat)x, (GLfloat)y, (GLfloat)z );
-    float sf = ht / (119.05f + 33.33f);
-    glScalef( (GLfloat)sf, (GLfloat)sf, (GLfloat)sf );
-    char c;            // one character to print
-    for (; (c = *s) != '\0'; s++) {
-        glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
-    }
-    glPopMatrix();
-}
 
 
 // return the number of seconds since the start of the program:
@@ -580,35 +441,13 @@ void InitGraphics() {
     // set the framebuffer clear values:
     glClearColor(BACKCOLOR[0], BACKCOLOR[1], BACKCOLOR[2], BACKCOLOR[3]);
     
-    // setup the callback functions:
-    // DisplayFunc -- redraw the window
-    // ReshapeFunc -- handle the user resizing the window
-    // KeyboardFunc -- handle a keyboard input
-    // MouseFunc -- handle the mouse button going down or up
-    // MotionFunc -- handle the mouse moving with a button down
-    // PassiveMotionFunc -- handle the mouse moving with a button up
-    // VisibilityFunc -- handle a change in window visibility
-    // EntryFunc    -- handle the cursor entering or leaving the window
-    // SpecialFunc -- handle special keys on the keyboard
-    // SpaceballMotionFunc -- handle spaceball translation
-    // SpaceballRotateFunc -- handle spaceball rotation
-    // SpaceballButtonFunc -- handle spaceball button hits
-    // ButtonBoxFunc -- handle button box hits
-    // DialsFunc -- handle dial rotations
-    // TabletMotionFunc -- handle digitizing tablet motion
-    // TabletButtonFunc -- handle digitizing tablet button hits
-    // MenuStateFunc -- declare when a pop-up menu is in use
-    // TimerFunc -- trigger something to happen a certain time from now
-    // IdleFunc -- what to do when nothing else is going on
     
     glutSetWindow(MainWindow);
     glutDisplayFunc(Display);
-    glutReshapeFunc(Resize);
     glutKeyboardFunc(Keyboard);
     glutMouseFunc(MouseButton);
     glutMotionFunc(MouseMotion);
     glutPassiveMotionFunc(NULL);
-    glutVisibilityFunc(Visibility);
     glutEntryFunc(NULL);
     glutSpecialFunc(NULL);
     glutSpaceballMotionFunc(NULL);
@@ -695,50 +534,49 @@ void createCessnaWireframe() {
     glEndList();
 }
 
-void CESSNAshade() {
-    
-    CessnaList = glGenLists(1);
-    glNewList(CessnaList, GL_COMPILE);
-    
-    int i;
-    struct tri *tp;
-    float p01[3], p02[3], n[3];
-//    struct edge *ep;
-    struct point *p0, *p1;
-    
-    glPushMatrix();
-    glRotatef(-7., 0., 1., 0.);
-    glTranslatef( 0., -1., 0. );
-    glRotatef(  97.,   0., 1., 0. );
-    glRotatef( -15.,   0., 0., 1. );
-    glBegin(GL_TRIANGLES);
-    
-    
-    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
-        p0 = &CESSNApoints[ tp->p0 ];
-        p1 = &CESSNApoints[ tp->p1 ];
-        
-        /* fake "lighting" from above:            */
-        
-        p01[0] = p1->x - p0->x;
-        p01[1] = p1->y - p0->y;
-        p01[2] = p1->z - p0->z;
-//        Unit( n, n );
-        n[1] = fabs( n[1] );
-        n[1] += .25;
-        if( n[1] > 1. )
-            n[1] = 1.;
-        glColor3f( 0., n[1], 0. );
-        
-        glVertex3f( p0->x, p0->y, p0->z );
-        glVertex3f( p1->x, p1->y, p1->z );
-        //        glVertex3f( p2->x, p2->y, p2->z );
-    }
-    glEnd( );
-    glPopMatrix( );
-    
-    glEndList();
-}
+//void CESSNAshade() {
+//
+//    CessnaList = glGenLists(1);
+//    glNewList(CessnaList, GL_COMPILE);
+//
+//    int i;
+//    struct tri *tp;
+//    float p01[3], n[3];
+////    struct edge *ep;
+//    struct point *p0, *p1;
+//
+//    glPushMatrix();
+//    glRotatef(-7., 0., 1., 0.);
+//    glTranslatef( 0., -1., 0. );
+//    glRotatef(  97.,   0., 1., 0. );
+//    glRotatef( -15.,   0., 0., 1. );
+//    glBegin(GL_TRIANGLES);
+//
+//
+//    for (i=0, tp = CESSNAtris; i < CESSNAntris; i++, tp++) {
+//        p0 = &CESSNApoints[ tp->p0 ];
+//        p1 = &CESSNApoints[ tp->p1 ];
+//
+//        /* fake "lighting" from above:            */
+//
+//        p01[0] = p1->x - p0->x;
+//        p01[1] = p1->y - p0->y;
+//        p01[2] = p1->z - p0->z;
+////        Unit( n, n );
+//        n[1] = fabs( n[1] );
+//        n[1] += .25;
+//        if( n[1] > 1. )
+//            n[1] = 1.;
+//        glColor3f( 0., n[1], 0. );
+//
+//        glVertex3f( p0->x, p0->y, p0->z );
+//        glVertex3f( p1->x, p1->y, p1->z );
+//    }
+//    glEnd( );
+//    glPopMatrix( );
+//
+//    glEndList();
+//}
 
 void createCessnaPropeller() {
     // propeller parameters:
@@ -771,6 +609,28 @@ void createCessnaPropeller() {
 }
 
 
+void FunkyTargetThingy() {
+    glTranslatef(0, 1, 15.);
+    glRotatef(90., 90, 0, -5);
+    glScalef(2,2,2);
+    glBegin(GL_LINE_LOOP);
+    
+    for (int y = 0; y < 200; y++) {
+        float deg = y / 10.;
+        if (y < 40) glColor3f(0, y/80., 128/255.);
+        else if (y < 80) glColor3f(0, 128/255., (80-y)/80.);
+        else if (y < 120) glColor3f((y-80.)/80., 128/255., 0);
+        else glColor3f(128/255., (160-y)/80., 0);
+        glVertex3f(cosf(deg)/2., y/200.*sinf(Time), sinf(deg)/2.);
+        glVertex3f(cosf(deg), y/80.*sinf(Time), sinf(deg));
+    }
+    
+    glEnd();
+
+}
+
+
+
 // the keyboard callback:
 void Keyboard(unsigned char c, int x, int y) {
     if (DebugOn)
@@ -796,7 +656,7 @@ void Keyboard(unsigned char c, int x, int y) {
             break;
             
         default:
-            fprintf(stderr, "Don't know what to do with keyboard hit: '%c' (0x%0x)\n", c, c);
+            fprintf(stderr, "Don't know what to do with keyboard: '%c' (0x%0x)\n", c, c);
     }
     
     // force a call to Display():
@@ -837,9 +697,9 @@ void MouseButton(int button, int state, int x, int y) {
     if (state == GLUT_DOWN) {
         Xmouse = x;
         Ymouse = y;
-        ActiveButton |= b;        // set the proper bit
+        ActiveButton |= b;
     } else {
-        ActiveButton &= ~b;        // clear the proper bit
+        ActiveButton &= ~b;
     }
 }
 
@@ -877,8 +737,6 @@ void MouseMotion(int x, int y) {
 
 
 // reset the transformations and the colors:
-// this only sets the global variables --
-// the glut main loop is responsible for redrawing the scene
 void Reset() {
     ActiveButton = 0;
     AxesOn = 0;
@@ -891,40 +749,11 @@ void Reset() {
 }
 
 
-// called when user resizes the window:
-void Resize(int width, int height) {
-    if (DebugOn)
-        fprintf(stderr, "ReSize: %d, %d\n", width, height);
-    
-    // don't really need to do anything since window size is
-    // checked each time in Display():
-    
-    glutSetWindow(MainWindow);
-    glutPostRedisplay();
-}
-
-
-// handle a change to the window's visibility:
-void Visibility(int state) {
-    if (DebugOn)
-        fprintf(stderr, "Visibility: %d\n", state);
-    
-    if (state == GLUT_VISIBLE) {
-        glutSetWindow(MainWindow);
-        glutPostRedisplay();
-    } else {
-        // could optimize by keeping track of the fact
-        // that the window is not visible and avoid
-        // animating or redrawing it ...
-    }
-}
 
 
 
-///////////////////////////////////////   HANDY UTILITIES:  //////////////////////////
+///HANDY UTILITIES:
 
-
-// the stroke characters 'X' 'Y' 'Z' :
 
 static float xx[] = {
     0.f, 1.f, 0.f, 1.f
@@ -1102,20 +931,3 @@ void HsvRgb(float hsv[3], float rgb[3]) {
     rgb[1] = g;
     rgb[2] = b;
 }
-
-
-
-//float Unit(float vin[3], float vout[3]) {
-//    float dist = vin[0]*vin[0] + vin[1]*vin[1] + vin[2]*vin[2];
-//    if (dist > 0.0) {
-//        dist = sqrt( dist );
-//        vout[0] = vin[0] / dist;
-//        vout[1] = vin[1] / dist;
-//        vout[2] = vin[2] / dist;
-//    } else {
-//        vout[0] = vin[0];
-//        vout[1] = vin[1];
-//        vout[2] = vin[2];
-//    }
-//    return dist;
-//}
