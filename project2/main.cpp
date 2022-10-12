@@ -32,31 +32,26 @@
 
 
 // title of these windows:
-const char *WINDOWTITLE = { "Project2" };
-const char *GLUITITLE   = { "Kateryna Gnedash" };
-
+const char *WINDOW_TITLE = "Project 2";
 
 // the escape key:
 #define ESCAPE        0x1b
 
 // initial window size:
-const int INIT_WINDOW_SIZE = { 1800 };
-
-// size of the box:
-const float BOXSIZE = { 10.f };
+const int INITIAL_WINDOW_SIZE = 1800;
 
 
 // multiplication factors for input interaction:
-const float ANGFACT = { 1. };
-const float SCLFACT = { 0.005f };
+const float ANGLE_FACTOR = 1.0f;
+const float SCALE_FACTOR = 0.005f;
 
 
 // minimum allowable scale factor:
-const float MINSCALE = { 0.05f };
+const float SCALE_FACTOR_MINIMUM = 0.05f;
 
 
 // animation cycle time
-const int MS_IN_THE_ANIMATION_CYCLE = { 800 };
+const int MS_IN_THE_ANIMATION_CYCLE = 800;
 
 
 // active mouse buttons (or them together):
@@ -228,8 +223,8 @@ void Display() {
         
         
         // uniformly scale the scene:
-        if (Scale < MINSCALE)
-            Scale = MINSCALE;
+        if (Scale < SCALE_FACTOR_MINIMUM)
+            Scale = SCALE_FACTOR_MINIMUM;
         glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
         
     }
@@ -392,11 +387,11 @@ void InitGraphics() {
     
     // set the initial window configuration:
     glutInitWindowPosition(0, 0);
-    glutInitWindowSize(INIT_WINDOW_SIZE, INIT_WINDOW_SIZE);
+    glutInitWindowSize(INITIAL_WINDOW_SIZE, INITIAL_WINDOW_SIZE);
     
     // open the window and set its title:
-    MainWindow = glutCreateWindow(WINDOWTITLE);
-    glutSetWindowTitle(WINDOWTITLE);
+    MainWindow = glutCreateWindow(WINDOW_TITLE);
+    glutSetWindowTitle(WINDOW_TITLE);
     
     // set the framebuffer clear values:
     glClearColor(BACKCOLOR[0], BACKCOLOR[1], BACKCOLOR[2], BACKCOLOR[3]);
@@ -666,18 +661,18 @@ void MouseMotion(int x, int y) {
     int dy = y - Ymouse;
     
     if (ActiveButton & LEFT) {
-        Xrot += (ANGFACT*dy);
-        Yrot += (ANGFACT*dx);
+        Xrot += (ANGLE_FACTOR*dy);
+        Yrot += (ANGLE_FACTOR*dx);
     }
     
     
     if (ActiveButton & MIDDLE) {
-        Scale += SCLFACT * (float) (dx - dy);
+        Scale += SCALE_FACTOR * (float) (dx - dy);
         
         // keep object from turning inside-out or disappearing:
         
-        if (Scale < MINSCALE)
-            Scale = MINSCALE;
+        if (Scale < SCALE_FACTOR_MINIMUM)
+            Scale = SCALE_FACTOR_MINIMUM;
     }
     
     Xmouse = x;            // new current position
